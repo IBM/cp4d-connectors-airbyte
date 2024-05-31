@@ -1,6 +1,7 @@
 package pl.poznan.put.connect.airbyte;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.ibm.connect.sdk.api.Record;
 import com.ibm.wdp.connect.common.sdk.api.models.CustomFlightAssetDescriptor;
 import com.ibm.wdp.connect.common.sdk.api.models.CustomFlightAssetField;
@@ -32,7 +33,14 @@ public class AirbyteStreamProcessor {
         HashMap<String,Object> response = new HashMap<>();
         for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
             LOGGER.debug("Reading line: {}", line);
-            AirbyteMessage airbyteMessage = gson.fromJson(line, AirbyteMessage.class);
+            AirbyteMessage airbyteMessage;
+            try {
+                airbyteMessage = gson.fromJson(line, AirbyteMessage.class);
+            } catch (JsonSyntaxException e) {
+                LOGGER.error("Error parsing line: {}", line, e);
+                response.put("error", "Error parsing line: " + line);
+                return response;
+            }
             switch (airbyteMessage.getType()) {
                 case SPEC:
                     response.put("connectionSpecification", airbyteMessage.getSpec().getConnectionSpecification());

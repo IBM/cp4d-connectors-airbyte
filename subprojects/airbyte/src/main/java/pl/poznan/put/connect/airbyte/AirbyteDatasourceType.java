@@ -7,11 +7,13 @@ package pl.poznan.put.connect.airbyte;
 
 import com.ibm.wdp.connect.common.sdk.api.models.*;
 import com.ibm.wdp.connect.common.sdk.api.models.CustomDatasourceTypeProperty.TypeEnum;
+import org.slf4j.Logger;
 import pl.poznan.put.connect.airbyte.models.schema.JsonSchema;
-import pl.poznan.put.connect.airbyte.models.schema.JsonSchemaTypes;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 @SuppressWarnings({ "PMD.AvoidDollarSigns", "PMD.ClassNamingConventions" })
 public class AirbyteDatasourceType extends CustomFlightDatasourceType
@@ -23,6 +25,7 @@ public class AirbyteDatasourceType extends CustomFlightDatasourceType
     public static final String DATASOURCE_TYPE_NAME_FORMAT = "%s";
     private static final String DATASOURCE_TYPE_LABEL_FORMAT = "%s datasource";
     private static final String DATASOURCE_TYPE_DESCRIPTION_FORMAT = "%s (SDK)";
+    private static final Logger LOGGER = getLogger(AirbyteDatasourceType.class);
 
     public AirbyteDatasourceType(String datasourceName, String imageName)
     {
@@ -40,6 +43,13 @@ public class AirbyteDatasourceType extends CustomFlightDatasourceType
         setProperties(properties);
 
         ConnectionActionResponse response = AirbyteProcessRunner.spec(imageName);
+        if (!response.containsKey("connectionSpecification")) {
+            LOGGER.error("No 'spec' response for {}.", datasourceName);
+            if (response.containsKey("error")) {
+                LOGGER.error("Error: {}", response.get("error"));
+            }
+            return;
+        }
         JsonSchema connectionSpecification = (JsonSchema) response.get("connectionSpecification");
 
         properties.setConnection(
