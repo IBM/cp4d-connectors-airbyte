@@ -1,5 +1,6 @@
 package pl.poznan.put.connect.airbyte.pods;
 
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import pl.poznan.put.connect.airbyte.containers.InitialContainerFactory;
 import pl.poznan.put.connect.airbyte.containers.MainContainerFactory;
 import pl.poznan.put.connect.airbyte.containers.SocatContainerFactory;
@@ -42,7 +43,18 @@ public class PodProcess extends Process{
         this.client = client;
 
         PodResource podResource = client.pods().inNamespace(podNamespace).withName(currentPodName);
-        Pod existingPod = podResource.get();
+        Pod existingPod;
+        try {
+            existingPod = podResource.get();
+            initPodProcess(existingPod, currentPodName, client, podNamespace, imageName, runCommand, configFileContent, catalogFileContent);
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 403) {
+                LOGGER.error("Access forbidden, make sure you have correctly set Role Bindings.\n{}", e.getMessage());
+            } else LOGGER.error(e.getMessage());
+        }
+    }
+
+    private void initPodProcess(Pod existingPod, String currentPodName, KubernetesClient client, String podNamespace, String imageName, String runCommand, Optional<String> configFileContent, Optional<String> catalogFileContent) throws IOException {
         if (existingPod == null) {
             LOGGER.error("Cannot find pod with the given namespace:{} and name:{}", podNamespace, currentPodName);
         }
