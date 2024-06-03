@@ -33,5 +33,5 @@
     <grpc maxInboundMessageSize="${flight_grpc_maxInboundMessageSize}" target="arrow.flight.protocol.FlightService" />
 
     <!-- For now, trace everything at finest level -->
-    <logging traceSpecification="*=audit:com.ibm.wdp.connect.*=finest:com.ibm.connect.*=finest" maxFiles="10"/>
+    <logging traceSpecification="*=info:com.ibm.wdp.connect.*=finest:com.ibm.connect.*=finest" maxFiles="10" consoleLogLevel="INFO"/>
 </server>
