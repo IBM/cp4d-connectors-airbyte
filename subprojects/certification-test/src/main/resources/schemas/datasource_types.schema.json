@@ -1,0 +1,303 @@
+{
+  "$id": "https://localhost/datasource_types",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "list_datasource_types",
+  "description": "Data sources returned by list_datasource_types",
+  "type": "object",
+  "required": ["datasource_types"],
+  "properties": {
+    "datasource_types": {
+      "type": "object",
+      "description": "Data source types",
+      "properties": {
+        "datasource_types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "label",
+              "allowed_as_source",
+              "allowed_as_target",
+              "status"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "A unique name, such as \"my_data_source_type\", that should follow IBM Cloud API Handbook naming standards."
+              },
+              "label": {
+                "type": "string",
+                "description": "A localized, displayable label such as \"My Data Source Type\""
+              },
+              "description": {
+                "type": ["string", "null"],
+                "description": "A localized, displayable description of the data source."
+              },
+              "allowed_as_source": {
+                "type": "boolean",
+                "description": "Whether the data source can be accessed as a source of data. That is, data can be read from the data source."
+              },
+              "allowed_as_target": {
+                "type": "boolean",
+                "description": "Whether the data source can be accessed as a target. That is, data can be written to the data source."
+              },
+              "properties": {
+                "type": "object",
+                "description": "Datasource properties",
+                "properties": {
+                  "connection": {
+                    "type": ["array", "null"],
+                    "description": "The connection properties.",
+                    "items": {
+                      "$ref": "#/$defs/datasource_type_property",
+                      "allOf": [{
+                        "if": {
+                          "properties": {
+                            "name": {
+                              "enum": ["api_key", "password", "api-key"]
+                            }
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "group",
+                            "masked"
+                          ],
+                          "properties": {
+                            "group": {
+                              "type": "string",
+                              "pattern": "credentials"
+                            },
+                            "masked": {
+                              "const": true
+                            }
+                          }
+                        }
+                      }
+                      ]
+                    }
+                  },
+                  "source": {
+                    "type": ["array", "null"],
+                    "description": "The properties that can be set for a source interaction.",
+                    "items": {
+                      "$ref": "#/$defs/datasource_type_property"
+                    }
+                  },
+                  "target": {
+                    "type": ["array", "null"],
+                    "description": "The properties that can be set for a target interaction.",
+                    "items": {
+                      "$ref": "#/$defs/datasource_type_property"
+                    }
+                  },
+                  "filter": {
+                    "type": ["array", "null"],
+                    "description": "The filter properties that can be set for a discovery interaction.",
+                    "items": {
+                      "$ref": "#/$defs/datasource_type_property"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the data source.",
+                "enum": ["active", "deprecated", "inactive", "pending"]
+              },
+              "tags": {
+                "type": ["array", "null"],
+                "description": "Tags associated with a data source type.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "actions": {
+                "type": ["array", "null"],
+                "description": "The actions supported for the data source.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": ["string", "null"],
+                      "description": "A description of the action."
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The action name."
+                    },
+                    "properties": {
+                      "type": "object",
+                      "description": "Properties that are supported for a data source type action.",
+                      "properties": {
+                        "input": {
+                          "type": ["array", "null"],
+                          "description": "The input properties.",
+                          "items": {
+                            "$ref": "#/$defs/datasource_type_property"
+                          }
+                        },
+                        "output": {
+                          "type": ["array", "null"],
+                          "description": "The properties of the action result.",
+                          "items": {
+                            "$ref": "#/$defs/datasource_type_property"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+
+              "discovery": {
+                "type": ["object", "null"],
+                "description": "Discovery features of the data source type.",
+                "properties": {
+                  "assetTypes": {
+                    "type": "array",
+                    "description": "Asset types",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "description": "The label of the asset type."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The name of the asset type."
+                        },
+                        "nextLevelFilters": {
+                          "type": "array",
+                          "description": "The filters which can be used to discover the next level of assets.",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "pathProperties": {
+                    "type": "array",
+                    "description": "Path properties",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "propertyName": {
+                          "type": "string",
+                          "description": "The name of the path property."
+                        },
+                        "segments": {
+                          "type": "array",
+                          "description": "The segments of the path property.",
+                          "items": {
+                            "type": "object",
+                            "description": "Discovery path segment.",
+                            "properties": {
+                              "assetTypes": {
+                                "type": "string",
+                                "description": "The asset type associated with the path segment."
+                              },
+                              "repeatable": {
+                                "type": "boolean",
+                                "description": "Whether the path segment is repeatable."
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "topLevelFilters": {
+                    "type": "array",
+                    "description": "Top level filters",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "datasource_type_property": {
+      "type": "object",
+      "description": "Data source property for a custom datasource type.",
+      "required": [
+        "name",
+        "label",
+        "type",
+        "required"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The property name."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label for the property."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the property.",
+          "enum": ["boolean", "enum", "integer", "string"]
+        },
+        "description": {
+          "description": "The description for the property.",
+          "type": ["string", "null"]
+        },
+        "masked": {
+          "type": "boolean",
+          "description": "Whether the property should be masked. For example, when the property is a password.",
+          "default": false
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether the property is required."
+        },
+        "group": {
+          "type": ["string", "null"],
+          "description": "A classification group for the property."
+        },
+        "default_value": {
+          "type": ["string", "null"],
+          "description": "The default value for the property if the value is not otherwise specified."
+        },
+        "multiline": {
+          "type": ["boolean", "null"],
+          "description": "Whether the property should be displayed in a multi-line field."
+        },
+        "placeholder": {
+          "type": ["string", "null"],
+          "description": "An example value for the property"
+        },
+        "values": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": ["string", "null"],
+                "description": "The value of the property that should be set if this enumeration is chosen."
+              },
+              "value": {
+                "type": ["string", "null"],
+                "description": "A localized string that is the displayable value for the enumeration. A user interface should display this string rather than the value."
+              }
+            }
+          },
+          "description": "If the property type is enum, the list of enumerated values that the property can take."
+        }
+      }
+    }
+  }
+}
